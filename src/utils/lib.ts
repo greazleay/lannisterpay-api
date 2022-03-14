@@ -2,7 +2,7 @@ import { CookieOptions, Request, Response, NextFunction } from "express";
 import { randomBytes } from "crypto";
 import { validationResult } from "express-validator";
 import { sign } from "jsonwebtoken";
-import { IUser } from "@interfaces/users.interface";
+import { ICustomer } from "@interfaces/customers.interface";
 import { ITokens } from "@interfaces/auth.interface";
 import { ENV } from "@utils/validateEnv";
 
@@ -16,18 +16,18 @@ export const generateRandomCode = async (length: number): Promise<string | null>
     }
 }
 
-export const tokenGenerator = async (user: IUser): Promise<ITokens> => {
+export const tokenGenerator = async (customer: ICustomer): Promise<ITokens> => {
     const payload = {
         aud: "https://pollaroid.net",
         iss: "https://pollaroid.net",
-        sub: user._id,
-        name: user.name,
-        email: user.email,
-        avatar: user.avatar,
-        isAdmin: user.isAdmin,
-        isMember: user.isMember,
-        last_login: user.lastLogin,
-        token_version: user.tokenVersion
+        sub: customer._id,
+        name: customer.name,
+        email: customer.email,
+        avatar: customer.avatar,
+        isAdmin: customer.isAdmin,
+        isMember: customer.isMember,
+        last_login: customer.lastLogin,
+        token_version: customer.tokenVersion
     };
     // Process Access token
     const ACCESS_TOKEN_PRIVATE_KEY = Buffer.from(ENV.ACCESS_TOKEN_PRIVATE_KEY_BASE64, 'base64').toString('ascii');

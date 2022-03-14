@@ -1,4 +1,4 @@
-import User from "@models/User";
+import User from "@src/models/Customer";
 import { body, validationResult } from "express-validator";
 import { sendMail } from "@utils/sendMail";
 import { Request, Response, NextFunction } from "express";

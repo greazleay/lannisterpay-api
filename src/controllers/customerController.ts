@@ -1,12 +1,13 @@
-import User from "@models/User";
+import Customer from "@src/models/Customer";
 import { body, validationResult } from "express-validator";
 import gravatar from "gravatar";
 import { Request, Response, NextFunction } from "express";
-import { RequestWithUser } from "@interfaces/users.interface";
+import { RequestWithCustomer } from "@interfaces/customers.interface";
 import { sendMail } from "@utils/sendMail";
+import { handleValidationErrors } from "@utils/lib";
 
-export const get_get_user = async (req: RequestWithUser, res: Response) => {
-    const { password, resetPassword, refreshToken, ...data } = req.user._doc;
+export const get_get_user = async (req: RequestWithCustomer, res: Response) => {
+    const { password, resetPassword, refreshToken, ...data } = req.customer._doc;
     res.json(data)
 }
 
@@ -17,15 +18,14 @@ export const post_create_user = [
     body('new_password').notEmpty().isLength({ min: 6 }),
 
     async (req: Request, res: Response, next: NextFunction) => {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) return res.status(422).json(errors.array());
+        handleValidationErrors(req, res);
 
         try {
             const { name, email, new_password, img } = req.body;
-            const found_user = await User.findOne({ email: email }).exec();
-            if (found_user) return res.status(409).json({ msg: 'User already exists' });
+            const found_customer = await Customer.findOne({ email: email }).exec();
+            if (found_customer) return res.status(409).json({ msg: 'Customer already exists' });
             const avatar = gravatar.url(email, { s: '100', r: 'pg', d: 'retro' }, true);
-            const user = new User({
+            const user = new Customer({
                 name: name,
                 email: email,
                 password: new_password,

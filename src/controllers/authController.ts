@@ -1,4 +1,4 @@
-import User from "@models/User";
+import User from "@src/models/Customer";
 import { body, validationResult } from "express-validator";
 import { JwtPayload, verify } from "jsonwebtoken";
 import { ENV } from "@utils/validateEnv";
