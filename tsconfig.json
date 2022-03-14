@@ -1,0 +1,34 @@
+{
+    "$schema": "https://json.schemastore.org/tsconfig",
+    "display": "Node 16",
+    "extends": "@tsconfig/node16/tsconfig.json",
+    "compilerOptions": {
+        "lib": [
+            "es2021"
+        ],
+        "module": "commonjs",
+        "target": "es2021",
+        "strict": true,
+        "outDir": "build",
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "noEmitOnError": true,
+        "typeRoots": [
+            "./node_modules/@types",
+            "src/global.d.ts"
+        ],
+        "baseUrl": ".",
+        "paths": {
+            "@*": ["*"],
+            "@global": ["src/global.d.ts"],
+            "@configs/*": ["src/configs/*"],
+            "@controllers/*": ["src/controllers/*"],
+            "@interfaces/*": ["src/interfaces/*"],
+            "@middlewares/*": ["src/middlewares/*"],
+            "@models/*": ["src/models/*"],
+            "@routes/*": ["src/routes/*"],
+            "@utils/*": ["src/utils/*"]
+        }
+    }
+}
