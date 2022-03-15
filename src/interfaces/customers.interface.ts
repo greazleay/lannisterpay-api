@@ -1,5 +1,5 @@
 import { Request } from "express";
-import { Document, Types } from "mongoose";
+import { Document } from "mongoose";
 import { ITokens, IValidate, IVerify } from "@interfaces/auth.interface";
 
 interface ResetPassword {

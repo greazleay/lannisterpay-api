@@ -1,7 +1,6 @@
 import { Document } from "mongoose";
 
 export interface IPaymentEntity extends Document {
-    _doc?: any;
     Issuer: string;
     Brand: string;
     Number: string;

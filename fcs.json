@@ -1,0 +1,22 @@
+{
+    "FeeConfigurationSpec": [
+        {
+            "FEE_ID": "LNPY1221",
+            "FEE_CURRENCY": "NGN",
+            "FEE_LOCALE": "LOCL",
+            "FEE_ENTITY": "CREDIT-CARD",
+            "ENTITY_PROPERTY": "*",
+            "FEE_TYPE": "PERC",
+            "FEE_VALUE": "1.4"
+        },
+        {
+            "FEE_ID": "LNPY1222",
+            "FEE_CURRENCY": "NGN",
+            "FEE_LOCALE": "INTL",
+            "FEE_ENTITY": "CREDIT-CARD",
+            "ENTITY_PROPERTY": "MASTERCARD",
+            "FEE_TYPE": "PERC",
+            "FEE_VALUE": "3.8"
+        }
+    ]
+}

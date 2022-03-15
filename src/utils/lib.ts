@@ -21,11 +21,9 @@ export const tokenGenerator = async (customer: ICustomer): Promise<ITokens> => {
         aud: "https://pollaroid.net",
         iss: "https://pollaroid.net",
         sub: customer._id,
-        name: customer.name,
-        email: customer.email,
+        name: customer.FullName,
+        email: customer.EmailAddress,
         avatar: customer.avatar,
-        isAdmin: customer.isAdmin,
-        isMember: customer.isMember,
         last_login: customer.lastLogin,
         token_version: customer.tokenVersion
     };
@@ -57,5 +55,7 @@ export const sendTokens = (res: Response, refresh_token: string, msg_txt: string
 
 export const handleValidationErrors = (req: Request, res: Response) => {
     const errors = validationResult(req);
-    return !errors.isEmpty() && res.status(422).json({ errors: errors.array() });
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    };
 };

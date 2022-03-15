@@ -22,7 +22,7 @@ initDB();
 authConfig(passport)
 
 const app = express();
-const whitelist = ['https://localhost:3000'];
+const whitelist = ['http://localhost:3000'];
 const corsOptions: CorsOptions = {
     credentials: true,
     methods: ['GET', 'DELETE', 'OPTIONS', 'POST', 'PUT'],

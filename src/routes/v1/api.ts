@@ -1,6 +1,7 @@
 import { Router } from "express";
 import authRouter from "@routes/v1/auth.router";
-import userRouter from "@routes/v1/user.router";
+import customerRouter from "@routes/v1/customer.router";
+import feeRouter from "@routes/v1/fee.router";
 import passwordRouter from "@routes/v1/password.router";
 
 const router: Router = Router();
@@ -9,6 +10,7 @@ router.get('/', (req, res) => { res.json({ msg: 'HELLO VISITOR, THANKS FOR STOPP
 
 router.use('/auth', authRouter);
 router.use('/password', passwordRouter);
-router.use('/user', userRouter);
+router.use('/customer', customerRouter);
+router.use('/fees', feeRouter);
 
 export default router;

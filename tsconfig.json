@@ -29,6 +29,7 @@
             "@models/*": ["src/models/*"],
             "@routes/*": ["src/routes/*"],
             "@services/*": ["src/services/*"],
+            "@src/*": ["src/*"],
             "@utils/*": ["src/utils/*"]
         }
     }

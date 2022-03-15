@@ -1,8 +1,8 @@
-import User from "@src/models/Customer";
+import Customer from "@models/Customer";
 import { body, validationResult } from "express-validator";
 import { sendMail } from "@utils/sendMail";
 import { Request, Response, NextFunction } from "express";
-import { RequestWithUser } from "@interfaces/users.interface";
+import { RequestWithCustomer } from "@interfaces/customers.interface";
 import { handleValidationErrors } from "@utils/lib";
 
 export const post_verification_code = [
@@ -16,9 +16,9 @@ export const post_verification_code = [
         } else {
 
             try {
-                const user = await User.findOne({ email: email }).exec();
-                if (!user) throw new Error(`User with email ${email} not found`);
-                const code = await user.generateCode();
+                const customer = await Customer.findOne({ email: email }).exec();
+                if (!customer) throw new Error(`Customer with email ${email} not found`);
+                const code = await customer.generateCode();
                 const mailOptions: [string, string, string, string] = [
                     email,
                     'Verification code',
@@ -48,13 +48,13 @@ export const put_reset_password = [
         } else {
             try {
                 const { email, new_password, code } = req.body;
-                const user = await User.findOne({ email: email }).exec();
-                if (!user) throw new Error(`No user with email: ${email} found`);
-                const { validCode, codeNotExpired } = await user.verifyCode(code);
+                const customer = await Customer.findOne({ email: email }).exec();
+                if (!customer) throw new Error(`No customer with email: ${email} found`);
+                const { validCode, codeNotExpired } = await customer.verifyCode(code);
                 if (!validCode || !codeNotExpired) return res.status(403).json({ msg: 'Verification code is invalid or it has expired.' });
-                user.password = new_password;
-                await user.save();
-                const { password, resetPassword, refreshToken, ...data } = user._doc;
+                customer.password = new_password;
+                await customer.save();
+                const { password, resetPassword, refreshToken, ...data } = customer._doc;
                 res.json({ msg: 'password reset successful', data })
             } catch (err) {
                 return next(err);
@@ -67,26 +67,26 @@ export const put_change_password = [
     body('old_password').notEmpty().isLength({ min: 6 }),
     body('new_password').notEmpty().isLength({ min: 6 }),
 
-    async (req: RequestWithUser, res: Response, next: NextFunction) => {
+    async (req: RequestWithCustomer, res: Response, next: NextFunction) => {
 
         handleValidationErrors(req, res);
 
         try {
             const { old_password, new_password } = req.body;
 
-            const user = await User.findById(req.user._id).exec();
-            if (!user) throw new Error(`No user with id: ${req.user._id} found`);
+            const customer = await Customer.findById(req.customer._id).exec();
+            if (!customer) throw new Error(`No customer with id: ${req.customer._id} found`);
 
-            const validPassword = await user.validatePassword(old_password);
+            const validPassword = await customer.validatePassword(old_password);
             if (!validPassword) return res.status(403).json({ msg: 'Old password is invalid' });
 
-            user.password = new_password;
-            await user.save();
+            customer.password = new_password;
+            await customer.save();
 
-            const { password, resetPassword, refreshToken, tokenVersion, ...data } = user._doc;
+            const { password, resetPassword, refreshToken, tokenVersion, ...data } = customer._doc;
             res.json({ msg: 'password changed successful', data })
         } catch (error) {
-            next(error);
+            return next(error);
         }
     }
 ]
