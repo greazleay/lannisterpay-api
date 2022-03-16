@@ -1,25 +1,16 @@
 import express, { NextFunction, Request, Response } from "express";
-import cookieParser from "cookie-parser";
 import createHttpError from "http-errors";
 import morgan from "morgan";
-import { config } from "dotenv";
-import passport from "passport";
 import cors, { CorsOptions } from "cors"
 import helmet from "helmet";
 import compression from "compression";
 
 import initDB from "@configs/database";
-import authConfig from "@middlewares/passport";
 import apiRouter from "@src/routes/v1/api";
 import indexRouter from "@routes/index";
 
-config();
-
 // Initialize DB
 initDB();
-
-// Load Paasport configuration
-authConfig(passport)
 
 const app = express();
 const whitelist = ['http://localhost:3000'];
@@ -38,9 +29,6 @@ const corsOptions: CorsOptions = {
 app.use(morgan('dev'));
 app.use(express.json({ limit: '16mb' }));
 app.use(express.urlencoded({ limit: '16mb', extended: true }));
-
-app.use(passport.initialize());
-app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(cors(corsOptions));
 app.use(helmet());
 app.use(compression());

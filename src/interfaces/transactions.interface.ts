@@ -1,10 +1,24 @@
 import { Document } from "mongoose";
-import { ICustomer } from "@interfaces/customers.interface";
-import { IPaymentEntity } from "@interfaces/paymentEntity.interface";
 
+interface ICustomer {
+    ID: number;
+    EmailAddress: string;
+    FullName: string;
+    BearsFee: boolean;
+}
+
+interface IPaymentEntity {
+    ID: number;
+    Issuer: string;
+    Brand: string;
+    Number: string;
+    SixID: number;
+    Type: "CREDIT-CARD" | "DEBIT-CARD" | "BANK-ACCOUNT" | "USSD" | "WALLET-ID";
+    Country: string;
+};
 
 export interface ITransaction extends Document {
-    _doc?: any;
+    ID: number;
     Amount: number;
     Currency: string;
     CurrencyCountry: string;

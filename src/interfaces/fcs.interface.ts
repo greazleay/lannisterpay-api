@@ -8,4 +8,5 @@ export interface IFCS extends Document {
     ENTITY_PROPERTY: string;
     FEE_TYPE: "FLAT" | "PERC" | "FLAT_PERC";
     FEE_VALUE: string;
+    generateFCS(): IFCS;
 }

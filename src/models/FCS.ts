@@ -11,21 +11,16 @@ const FCSSchema = new Schema<IFCS>({
     FEE_VALUE: { type: String, required: true }
 });
 
-// FCSSchema.methods.toJSON = function () {
-//     const fcs = this.toObject();
-//     delete fcs.__v;
-//     return fcs;
-// }
 
-FCSSchema.methods.generateFeeConfigurationSpec = function () {
+FCSSchema.methods.generateFCS = function () {
     return {
         FEE_ID: this.FEE_ID,
         FEE_CURRENCY: this.FEE_CURRENCY,
         FEE_LOCALE: this.FEE_LOCALE,
         FEE_ENTITY: this.FEE_ENTITY,
         ENTITY_PROPERTY: this.ENTITY_PROPERTY,
-        // FEE_TYPE: this.FEE_TYPE,
-        // FEE_VALUE: this.FEE_VALUE
+        FEE_TYPE: this.FEE_TYPE,
+        FEE_VALUE: this.FEE_VALUE
     };
 }
 
