@@ -13,7 +13,7 @@ interface IPaymentEntity {
     Brand: string;
     Number: string;
     SixID: number;
-    Type: "CREDIT-CARD" | "DEBIT-CARD" | "BANK-ACCOUNT" | "USSD" | "WALLET-ID";
+    Type: "CREDIT-CARD" | "DEBIT-CARD" | "BANK-ACCOUNT" | "USSD" | "WALLET-ID" | "*";
     Country: string;
 };
 

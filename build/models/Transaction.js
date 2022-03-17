@@ -18,7 +18,7 @@ const TransactionSchema = new mongoose_1.Schema({
         Brand: { type: String, required: true },
         Number: { type: String, required: true },
         SixID: { type: Number, required: true },
-        Type: { type: String, enum: ["CREDIT-CARD", "DEBIT-CARD", "BANK-ACCOUNT", "USSD", "WALLET-ID"], required: true },
+        Type: { type: String, enum: ["CREDIT-CARD", "DEBIT-CARD", "BANK-ACCOUNT", "USSD", "WALLET-ID", "*"], required: true },
         Country: { type: String, required: true },
     }
 });
