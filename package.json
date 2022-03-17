@@ -52,7 +52,6 @@
   "scripts": {
     "start": "node build/index.js",
     "build": "tsc && tsc-alias",
-    "devstart": "npm run build && nodemon build/index.js",
-    "serverstart": "DEBUG=members-only:*npm run devstart"
+    "devstart": "npm run build && nodemon build/index.js"
   }
 }

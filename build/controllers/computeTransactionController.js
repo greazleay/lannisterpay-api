@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.post_compute_transaction_fee = void 0;
 const express_validator_1 = require("express-validator");
-const FCS_1 = __importDefault(require("../models/FCS"));
+const FeeConfigSpec_1 = __importDefault(require("../models/FeeConfigSpec"));
 exports.post_compute_transaction_fee = [
     (0, express_validator_1.body)('ID').isNumeric().withMessage('ID must be a numeric value'),
     (0, express_validator_1.body)('Amount').isInt({ min: 1 }).withMessage('Amount must be an integer'),
@@ -29,9 +29,9 @@ exports.post_compute_transaction_fee = [
             if (!errors.isEmpty())
                 return res.status(400).json({ errors: errors.array() });
             const { ID, Amount, Currency, CurrencyCountry, Customer, PaymentEntity } = req.body;
-            const feeConfigSpecs = await FCS_1.default.find({});
+            const feeConfigSpecs = await FeeConfigSpec_1.default.find({});
             const formatedFCS = feeConfigSpecs.map(fcs => {
-                const { FEE_ID, FEE_TYPE, FEE_VALUE, ...rest } = fcs.generateFCS();
+                const { FEE_ID, FEE_TYPE, FEE_VALUE, ...rest } = fcs.generateFeeConfigSpec();
                 const fcsObject = {
                     FEE_ID,
                     FEE_TYPE,

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { body, validationResult } from "express-validator";
-import FCS from "@models/FCS";
+import FeeConfigSpec from "@src/models/FeeConfigSpec";
 import Transaction from "@models/Transaction";
 
 export const post_compute_transaction_fee = [
@@ -28,9 +28,9 @@ export const post_compute_transaction_fee = [
 
             const { ID, Amount, Currency, CurrencyCountry, Customer, PaymentEntity } = req.body;
 
-            const feeConfigSpecs = await FCS.find({});
+            const feeConfigSpecs = await FeeConfigSpec.find({});
             const formatedFCS = feeConfigSpecs.map(fcs => {
-                const { FEE_ID, FEE_TYPE, FEE_VALUE, ...rest } = fcs.generateFCS();
+                const { FEE_ID, FEE_TYPE, FEE_VALUE, ...rest } = fcs.generateFeeConfigSpec();
                 const fcsObject = {
                     FEE_ID,
                     FEE_TYPE,

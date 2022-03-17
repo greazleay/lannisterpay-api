@@ -3,8 +3,8 @@
         {
             "FEE_ID": "LNPY1221",
             "FEE_CURRENCY": "NGN",
-            "FEE_LOCALE": "LOCL",
-            "FEE_ENTITY": "CREDIT-CARD",
+            "FEE_LOCALE": "*",
+            "FEE_ENTITY": "*",
             "ENTITY_PROPERTY": "*",
             "FEE_TYPE": "PERC",
             "FEE_VALUE": "1.4"
@@ -14,9 +14,36 @@
             "FEE_CURRENCY": "NGN",
             "FEE_LOCALE": "INTL",
             "FEE_ENTITY": "CREDIT-CARD",
-            "ENTITY_PROPERTY": "MASTERCARD",
+            "ENTITY_PROPERTY": "VISA",
             "FEE_TYPE": "PERC",
-            "FEE_VALUE": "3.8"
+            "FEE_VALUE": "5.0"
+        },
+        {
+            "FEE_ID": "LNPY1223",
+            "FEE_CURRENCY": "NGN",
+            "FEE_LOCALE": "LOCL",
+            "FEE_ENTITY": "CREDIT-CARD",
+            "ENTITY_PROPERTY": "*",
+            "FEE_TYPE": "FLAT_PERC",
+            "FEE_VALUE": "50:1.4"
+        },
+        {
+            "FEE_ID": "LNPY1224",
+            "FEE_CURRENCY": "NGN",
+            "FEE_LOCALE": "*",
+            "FEE_ENTITY": "BANK-ACCOUNT",
+            "ENTITY_PROPERTY": "*",
+            "FEE_TYPE": "FLAT",
+            "FEE_VALUE": "100"
+        },
+        {
+            "FEE_ID": "LNPY1225",
+            "FEE_CURRENCY": "NGN",
+            "FEE_LOCALE": "*",
+            "FEE_ENTITY": "USSD",
+            "ENTITY_PROPERTY": "MTN",
+            "FEE_TYPE": "PERC",
+            "FEE_VALUE": "0.55"
         }
     ]
 }
