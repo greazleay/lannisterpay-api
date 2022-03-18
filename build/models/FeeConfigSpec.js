@@ -24,12 +24,12 @@ FeeConfigSpecSchema.methods.generateFeeConfigSpec = function () {
 FeeConfigSpecSchema.methods.computeAppliedFee = function (amount) {
     switch (this.FEE_TYPE) {
         case "FLAT":
-            return parseFloat(this.FEE_VALUE);
+            return Number(this.FEE_VALUE);
         case "PERC":
-            return amount * (parseFloat(this.FEE_VALUE) / 100);
+            return amount * (Number(this.FEE_VALUE) / 100);
         case "FLAT_PERC":
             const splitFeeValue = this.FEE_VALUE.split(":");
-            return parseFloat(splitFeeValue[0]) + (amount * (parseFloat(splitFeeValue[1]) / 100));
+            return Number(splitFeeValue[0]) + (amount * (Number(splitFeeValue[1]) / 100));
         default:
             return 0;
     }

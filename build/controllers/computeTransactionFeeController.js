@@ -20,7 +20,7 @@ exports.post_compute_transaction_fee = [
     (0, express_validator_1.body)('PaymentEntity.Issuer').isString().withMessage('PaymentEntity.Issuer must be a string').isLength({ min: 1, max: 100 }).withMessage('PaymentEntity.Issuer must be a non-empty string of length 1-100').trim().escape(),
     (0, express_validator_1.body)('PaymentEntity.Brand').isString().withMessage('PaymentEntity.Brand must be a string'),
     (0, express_validator_1.body)('PaymentEntity.Number').isString().withMessage('PaymentEntity.Number must be a string').isLength({ min: 16, max: 16 }).withMessage('PaymentEntity.Number must be a non-empty string of length 16'),
-    (0, express_validator_1.body)('PaymentEntity.SixID').isInt({ min: 1 }).withMessage('PaymentEntity.SixID must be an integer'),
+    (0, express_validator_1.body)('PaymentEntity.SixID').isString().withMessage('PaymentEntity.SixID must be a string').isLength({ min: 6, max: 6 }).withMessage('PaymentEntity.SixID must be a non-empty string of length 6'),
     (0, express_validator_1.body)('PaymentEntity.Type').isString().withMessage('PaymentEntity.Type must be a string').matches(/^(CREDIT-CARD|DEBIT-CARD|BANK-ACCOUNT|USSD|WALLET-ID)$/).withMessage('PaymentEntity.Type must be one of CREDIT-CARD, DEBIT-CARD, BANK-ACCOUNT, USSD, WALLET-ID'),
     (0, express_validator_1.body)('PaymentEntity.Country').isString().withMessage('PaymentEntity.Country must be a string').matches(/^(NG|US)$/).withMessage('PaymentEntity.Country must be one of NG, US'),
     async (req, res, next) => {
@@ -29,15 +29,18 @@ exports.post_compute_transaction_fee = [
             if (!errors.isEmpty())
                 return res.status(400).json({ errors: errors.array() });
             const { ID, Amount, Currency, CurrencyCountry, Customer, PaymentEntity } = req.body;
+            if (Currency === "USD")
+                return res.status(422).json({ Error: "No fee configuration for USD transactions." });
+            // Get All Fee Config Specs
             const feeConfigSpecs = await FeeConfigSpec_1.default.find({});
-            // Analyze Transaction details and compute probable fee config spec
+            // Compute probable fee config spec from transaction details
             const computedFCSFromPaymentEntity = {
                 FEE_CURRENCY: Currency ? Currency : '*',
                 FEE_LOCALE: !CurrencyCountry ? '*' : CurrencyCountry === PaymentEntity.Country ? 'LOCL' : 'INTL',
                 FEE_ENTITY: PaymentEntity.Type ? PaymentEntity.Type : '*',
                 ENTITY_PROPERTY: PaymentEntity.Brand ? PaymentEntity.Brand : '*',
             };
-            // Compare the computedFCSFromPaymentEntity with the available FeeConfigSpec
+            // Compare the computedFCSFromPaymentEntity with the available FeeConfigSpecs
             const applicableFeeConfigSpecs = feeConfigSpecs.filter(fcs => {
                 const { FEE_CURRENCY, FEE_LOCALE, FEE_ENTITY, ENTITY_PROPERTY } = fcs.generateFeeConfigSpec();
                 return ((FEE_CURRENCY === computedFCSFromPaymentEntity.FEE_CURRENCY || FEE_CURRENCY === '*') &&
@@ -45,46 +48,37 @@ exports.post_compute_transaction_fee = [
                     (FEE_ENTITY === computedFCSFromPaymentEntity.FEE_ENTITY || FEE_ENTITY === '*') &&
                     (ENTITY_PROPERTY === computedFCSFromPaymentEntity.ENTITY_PROPERTY || ENTITY_PROPERTY === '*'));
             });
-            console.log(applicableFeeConfigSpecs);
-            console.log("===================================");
-            // console.log(computedFCSFromPaymentEntity);
-            // If no applicable FeeConfigSpec is found, return an error
-            // if (!applicableFeeConfigSpecs.length) return res.status(400).json({ errors: [{ msg: 'No applicable FeeConfigSpec found' }] });
-            // Calculate best applicable FeeConfigSpec
-            const getLeastWildCardValue = (arr) => {
-                const wildCardValues = arr.filter(x => x === '*');
-                return wildCardValues.length;
-            };
-            const mind = [];
-            applicableFeeConfigSpecs.forEach((fcs, i) => {
-                mind.push({ i, value: getLeastWildCardValue(Object.values(fcs.generateFeeConfigSpec())) });
-            });
-            console.log(mind);
-            console.log("===================================");
-            const min = mind.reduce((prev, curr) => prev.value < curr.value ? prev : curr);
-            console.log(min);
-            console.log(applicableFeeConfigSpecs[min.i]);
-            // const matchedFCS = formatedFCS.filter(fcs => JSON.stringify(fcs.fcsToCompare) === JSON.stringify(computedFCSFromPaymentEntity));
-            // if (!matchedFCS.length) return res.status(404).json({ errors: [{ msg: 'No matching fee configuration specification found' }] });
-            const { FEE_ID } = applicableFeeConfigSpecs[min.i];
-            // const fcsToApply = await FeeConfigSpec.findOne({ FEE_ID });
-            const computedFee = applicableFeeConfigSpecs[min.i].computeAppliedFee(Amount);
-            // const transaction = new Transaction({
-            //     ID,
-            //     Amount,
-            //     Currency,
-            //     CurrencyCountry,
-            //     Customer,
-            //     PaymentEntity,
-            // });
-            // await transaction.save();
-            return res.status(200).json({
-                AppliedFeeID: FEE_ID,
-                AppliedFeeValue: computedFee,
-                ChargeAmount: Customer.BearsFee ? Amount + computedFee : Amount,
-                SettlementAmount: Customer.BearsFee ? Amount : Amount - computedFee,
-            });
-            // return res.status(200).json({ msg: 'Currently testing' });
+            // If no applicable FeeConfigSpecs, return error
+            if (!applicableFeeConfigSpecs.length)
+                return res.status(422).json({ Error: "No fee configuration for this transaction." });
+            if (applicableFeeConfigSpecs.length === 1) {
+                const computedFee = applicableFeeConfigSpecs[0].computeAppliedFee(Amount);
+                return res.status(200).json({
+                    AppliedFeeID: applicableFeeConfigSpecs[0].FEE_ID,
+                    AppliedFeeValue: Math.round(computedFee),
+                    ChargeAmount: Customer.BearsFee ? Amount + computedFee : Amount,
+                    SettlementAmount: Customer.BearsFee ? Amount : Amount - computedFee,
+                });
+            }
+            else {
+                // Calculate best applicable FeeConfigSpec
+                const getWildCardValues = (arr) => {
+                    const wildCardValues = arr.filter(x => x === '*');
+                    return wildCardValues.length;
+                };
+                const wildCardValuesArray = [];
+                applicableFeeConfigSpecs.forEach((fcs, i) => {
+                    wildCardValuesArray.push({ i, value: getWildCardValues(Object.values(fcs.generateFeeConfigSpec())) });
+                });
+                const min = wildCardValuesArray.reduce((prev, curr) => prev.value < curr.value ? prev : curr);
+                const computedFee = applicableFeeConfigSpecs[min.i].computeAppliedFee(Amount);
+                return res.status(200).json({
+                    AppliedFeeID: applicableFeeConfigSpecs[min.i].FEE_ID,
+                    AppliedFeeValue: Math.round(computedFee),
+                    ChargeAmount: Customer.BearsFee ? Amount + computedFee : Amount,
+                    SettlementAmount: Customer.BearsFee ? Amount : Amount - computedFee,
+                });
+            }
         }
         catch (error) {
             return next(error);
