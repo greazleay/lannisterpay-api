@@ -47,60 +47,28 @@ export const post_compute_transaction_fee = [
                     (FEE_ENTITY === computedFCSFromPaymentEntity.FEE_ENTITY || FEE_ENTITY === '*') &&
                     (ENTITY_PROPERTY === computedFCSFromPaymentEntity.ENTITY_PROPERTY || ENTITY_PROPERTY === '*')
                 );
-            }) 
-
-            console.log(applicableFeeConfigSpecs);
-            console.log("===================================");
-            // console.log(computedFCSFromPaymentEntity);
-
-            // If no applicable FeeConfigSpec is found, return an error
-            // if (!applicableFeeConfigSpecs.length) return res.status(400).json({ errors: [{ msg: 'No applicable FeeConfigSpec found' }] });
+            })
 
             // Calculate best applicable FeeConfigSpec
-
-            const getLeastWildCardValue = (arr: string[]) => {
+            const getWildCardValues = (arr: string[]) => {
                 const wildCardValues = arr.filter(x => x === '*');
                 return wildCardValues.length;
-            }
+            };
 
-            const mind: any[] = [];
+            const wildCardValuesArray: { i: number, value: number }[] = [];
             applicableFeeConfigSpecs.forEach((fcs, i) => {
-                mind.push({i, value: getLeastWildCardValue(Object.values(fcs.generateFeeConfigSpec()))});
+                wildCardValuesArray.push({ i, value: getWildCardValues(Object.values(fcs.generateFeeConfigSpec())) });
             });
 
-            console.log(mind);
-            console.log("===================================");
-            const min = mind.reduce((prev, curr) => prev.value < curr.value ? prev : curr);
-            console.log(min);
+            const min = wildCardValuesArray.reduce((prev, curr) => prev.value < curr.value ? prev : curr);
+            const computedFee = applicableFeeConfigSpecs[min.i].computeAppliedFee(Amount);
 
-            
-
-            // const matchedFCS = formatedFCS.filter(fcs => JSON.stringify(fcs.fcsToCompare) === JSON.stringify(computedFCSFromPaymentEntity));
-            // if (!matchedFCS.length) return res.status(404).json({ errors: [{ msg: 'No matching fee configuration specification found' }] });
-
-            // const { FEE_ID } = matchedFCS[0];
-            // const fcsToApply = await FeeConfigSpec.findOne({ FEE_ID });
-            // const computedFee = fcsToApply!.computeAppliedFee(Amount);
-            
-            // const transaction = new Transaction({
-            //     ID,
-            //     Amount,
-            //     Currency,
-            //     CurrencyCountry,
-            //     Customer,
-            //     PaymentEntity,
-            // });
-
-            // await transaction.save();
-
-            // return res.status(200).json({
-            //     AppliedFeeID: FEE_ID,
-            //     AppliedFeeValue: computedFee,
-            //     ChargeAmount: PaymentEntity.BearsFee ? Amount + computedFee : Amount,
-            //     SettlementAmount: PaymentEntity.BearsFee ? Amount : Amount - computedFee,
-            // });
-
-            return res.status(200).json({ msg: 'Currently testing' });
+            return res.status(200).json({
+                AppliedFeeID: applicableFeeConfigSpecs[min.i].FEE_ID,
+                AppliedFeeValue: computedFee,
+                ChargeAmount: Customer.BearsFee ? Amount + computedFee : Amount,
+                SettlementAmount: Customer.BearsFee ? Amount : Amount - computedFee,
+            });
 
         } catch (error) {
             return next(error);

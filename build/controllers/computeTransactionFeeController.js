@@ -60,11 +60,15 @@ exports.post_compute_transaction_fee = [
                 mind.push({ i, value: getLeastWildCardValue(Object.values(fcs.generateFeeConfigSpec())) });
             });
             console.log(mind);
+            console.log("===================================");
+            const min = mind.reduce((prev, curr) => prev.value < curr.value ? prev : curr);
+            console.log(min);
+            console.log(applicableFeeConfigSpecs[min.i]);
             // const matchedFCS = formatedFCS.filter(fcs => JSON.stringify(fcs.fcsToCompare) === JSON.stringify(computedFCSFromPaymentEntity));
             // if (!matchedFCS.length) return res.status(404).json({ errors: [{ msg: 'No matching fee configuration specification found' }] });
-            // const { FEE_ID } = matchedFCS[0];
+            const { FEE_ID } = applicableFeeConfigSpecs[min.i];
             // const fcsToApply = await FeeConfigSpec.findOne({ FEE_ID });
-            // const computedFee = fcsToApply!.computeAppliedFee(Amount);
+            const computedFee = applicableFeeConfigSpecs[min.i].computeAppliedFee(Amount);
             // const transaction = new Transaction({
             //     ID,
             //     Amount,
@@ -74,13 +78,13 @@ exports.post_compute_transaction_fee = [
             //     PaymentEntity,
             // });
             // await transaction.save();
-            // return res.status(200).json({
-            //     AppliedFeeID: FEE_ID,
-            //     AppliedFeeValue: computedFee,
-            //     ChargeAmount: PaymentEntity.BearsFee ? Amount + computedFee : Amount,
-            //     SettlementAmount: PaymentEntity.BearsFee ? Amount : Amount - computedFee,
-            // });
-            return res.status(200).json({ msg: 'Currently testing' });
+            return res.status(200).json({
+                AppliedFeeID: FEE_ID,
+                AppliedFeeValue: computedFee,
+                ChargeAmount: Customer.BearsFee ? Amount + computedFee : Amount,
+                SettlementAmount: Customer.BearsFee ? Amount : Amount - computedFee,
+            });
+            // return res.status(200).json({ msg: 'Currently testing' });
         }
         catch (error) {
             return next(error);
