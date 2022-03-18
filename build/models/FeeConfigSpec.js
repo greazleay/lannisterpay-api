@@ -21,15 +21,15 @@ FeeConfigSpecSchema.methods.generateFeeConfigSpec = function () {
         FEE_VALUE: this.FEE_VALUE
     };
 };
-FeeConfigSpecSchema.methods.computeFee = function (amount) {
+FeeConfigSpecSchema.methods.computeAppliedFee = function (amount) {
     switch (this.FEE_TYPE) {
         case "FLAT":
-            return parseFloat(this.FEE_VALUE);
+            return Number(this.FEE_VALUE);
         case "PERC":
-            return amount * parseFloat(this.FEE_VALUE) / 100;
+            return amount * (Number(this.FEE_VALUE) / 100);
         case "FLAT_PERC":
             const splitFeeValue = this.FEE_VALUE.split(":");
-            return (amount * parseFloat(splitFeeValue[1]) / 100) + parseFloat(splitFeeValue[0]);
+            return Number(splitFeeValue[0]) + (amount * (Number(splitFeeValue[1]) / 100));
         default:
             return 0;
     }

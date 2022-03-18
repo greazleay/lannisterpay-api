@@ -29,17 +29,8 @@ export const post_compute_transaction_fee = [
             const { ID, Amount, Currency, CurrencyCountry, Customer, PaymentEntity } = req.body;
 
             const feeConfigSpecs = await FeeConfigSpec.find({});
-            const formatedFCS = feeConfigSpecs.map(fcs => {
-                const { FEE_ID, FEE_TYPE, FEE_VALUE, ...rest } = fcs.generateFeeConfigSpec();
-                const fcsObject = {
-                    FEE_ID,
-                    FEE_TYPE,
-                    FEE_VALUE,
-                    fcsToCompare: { ...rest }
-                };
-                return fcsObject;
-            });
 
+            // Analyze Transaction details and compute probable fee config spec
             const computedFCSFromPaymentEntity = {
                 FEE_CURRENCY: Currency ? Currency : '*',
                 FEE_LOCALE: !CurrencyCountry ? '*' : CurrencyCountry === PaymentEntity.Country ? 'LOCL' : 'INTL',
@@ -47,34 +38,69 @@ export const post_compute_transaction_fee = [
                 ENTITY_PROPERTY: PaymentEntity.Brand ? PaymentEntity.Brand : '*',
             };
 
-            console.log(computedFCSFromPaymentEntity);
-            console.log("==========================================================");
-            console.log(formatedFCS);
+            // Compare the computedFCSFromPaymentEntity with the available FeeConfigSpec
+            const applicableFeeConfigSpecs = feeConfigSpecs.filter(fcs => {
+                const { FEE_CURRENCY, FEE_LOCALE, FEE_ENTITY, ENTITY_PROPERTY } = fcs.generateFeeConfigSpec();
+                return (
+                    (FEE_CURRENCY === computedFCSFromPaymentEntity.FEE_CURRENCY || FEE_CURRENCY === '*') &&
+                    (FEE_LOCALE === computedFCSFromPaymentEntity.FEE_LOCALE || FEE_LOCALE === '*') &&
+                    (FEE_ENTITY === computedFCSFromPaymentEntity.FEE_ENTITY || FEE_ENTITY === '*') &&
+                    (ENTITY_PROPERTY === computedFCSFromPaymentEntity.ENTITY_PROPERTY || ENTITY_PROPERTY === '*')
+                );
+            }) 
 
-            const matchedFCS = formatedFCS.filter(fcs => JSON.stringify(fcs.fcsToCompare) === JSON.stringify(computedFCSFromPaymentEntity));
-            if (!matchedFCS.length) return res.status(404).json({ errors: [{ msg: 'No matching fee configuration specification found' }] });
+            console.log(applicableFeeConfigSpecs);
+            console.log("===================================");
+            // console.log(computedFCSFromPaymentEntity);
 
-            const { FEE_ID } = matchedFCS[0];
-            const fcsToApply = await FeeConfigSpec.findOne({ FEE_ID });
-            const computedFee = fcsToApply!.computeFee(Amount);
+            // If no applicable FeeConfigSpec is found, return an error
+            // if (!applicableFeeConfigSpecs.length) return res.status(400).json({ errors: [{ msg: 'No applicable FeeConfigSpec found' }] });
+
+            // Calculate best applicable FeeConfigSpec
+
+            const getLeastWildCardValue = (arr: string[]) => {
+                const wildCardValues = arr.filter(x => x === '*');
+                return wildCardValues.length;
+            }
+
+            const mind: any[] = [];
+            applicableFeeConfigSpecs.forEach((fcs, i) => {
+                mind.push({i, value: getLeastWildCardValue(Object.values(fcs.generateFeeConfigSpec()))});
+            });
+
+            console.log(mind);
+            console.log("===================================");
+            const min = mind.reduce((prev, curr) => prev.value < curr.value ? prev : curr);
+            console.log(min);
+
             
-            const transaction = new Transaction({
-                ID,
-                Amount,
-                Currency,
-                CurrencyCountry,
-                Customer,
-                PaymentEntity,
-            });
 
-            await transaction.save();
+            // const matchedFCS = formatedFCS.filter(fcs => JSON.stringify(fcs.fcsToCompare) === JSON.stringify(computedFCSFromPaymentEntity));
+            // if (!matchedFCS.length) return res.status(404).json({ errors: [{ msg: 'No matching fee configuration specification found' }] });
 
-            return res.status(200).json({
-                AppliedFeeID: FEE_ID,
-                AppliedFeeValue: computedFee,
-                ChargeAmount: PaymentEntity.BearsFee ? Amount + computedFee : Amount,
-                SettlementAmount: PaymentEntity.BearsFee ? Amount : Amount - computedFee,
-            });
+            // const { FEE_ID } = matchedFCS[0];
+            // const fcsToApply = await FeeConfigSpec.findOne({ FEE_ID });
+            // const computedFee = fcsToApply!.computeAppliedFee(Amount);
+            
+            // const transaction = new Transaction({
+            //     ID,
+            //     Amount,
+            //     Currency,
+            //     CurrencyCountry,
+            //     Customer,
+            //     PaymentEntity,
+            // });
+
+            // await transaction.save();
+
+            // return res.status(200).json({
+            //     AppliedFeeID: FEE_ID,
+            //     AppliedFeeValue: computedFee,
+            //     ChargeAmount: PaymentEntity.BearsFee ? Amount + computedFee : Amount,
+            //     SettlementAmount: PaymentEntity.BearsFee ? Amount : Amount - computedFee,
+            // });
+
+            return res.status(200).json({ msg: 'Currently testing' });
 
         } catch (error) {
             return next(error);
