@@ -5,7 +5,10 @@
 * Lekan Adetunmbi
 
 ## About
-* This api is built with great consideration regarding security and measure are taken to prevent common attacks such as XSS and CSRF
+
+FlutterWave Technical Assessment Project.
+
+Lannister Pay is a transaction fee processing service meant to calculate the fee applicable to a transaction based on specific fee configuration.
 
 ## Stack
 
@@ -13,38 +16,23 @@
 * Express
 * MongoDB
 * Mongoose
-* Passport
-* JWT
 
-## Available Routes:
+## Fee Config Schema
 
-### Authentication Routes
-* User Login:                                                   POST /api/auth/login
-* User Logout:                                                  GET /api/auth/logout
-* Refresh Token:                                                POST /api/auth/refresh_token 
+The fee configuration schema used to define the fee configuration for a specific transaction type is defined below:
+    {
+        "FEE_ID": string,
+        "FEE_CURRENCY": string,
+        "FEE_LOCALE": string,
+        "FEE_ENTITY": string,
+        "ENTITY_PROPERTY": string,
+        "FEE_TYPE": string,
+        "FEE_VALUE": string
+    },
 
-### User Routes
-* Create User:                                                  POST /api/user/register
-* User Info:                                                    GET /api/user/userinfo
+## Endpoints
 
-### Password Reset Routes
-* Verification Code:                                            GET /api/user/verification_code
-* Reset Password                                                PUT /api/user/reset_password
+* Fee Configuration Specs Setup:                                 POST /v1/fees
+* Compute Transaction Fee                                        POST /v1/fees/compute_transaction_fee
 
-### Savings Group Routes
-* Get All Savings Group                                         GET /api/savings_group/all
-* Search Savings Group                                          GET /api/savings_group/search
-* Get Savings Group by Id                                       GET /api/savings_group/:id
-* Get Members of a Savings Group                                GET /api/savings_group/:id/members
-* Create Savings Group                                          POST /api/savings_group/create
-* Add Member to Savings Group                                   PUT /api/savings_group/:id/add_member
-* Remove Member from Savings Group                              PUT /api/savings_group/:id/remove_member'
-* Delete Savings Group                                          DELETE /api/savings_group/:id/delete_savings_group'
-* Post Send Group Invitation                                    POST /api/savings_group/send_group_invitation
-
-### Savings Group Transaction Routes
-* Put Add Savings Group Transaction                             PUT /api/savings_group/:id/add_savings
-
-## Endpoint 
-
-* View live demo of the application [here](https://esusu-confam.herokuapp.com/api)
+* API Documentation is available [here](https://api-lnpy.herokuapp.com/api-docs)

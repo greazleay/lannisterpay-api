@@ -13,7 +13,7 @@ import indexRouter from "@routes/index";
 initDB();
 
 const app = express();
-const whitelist = ['http://localhost:3000'];
+const whitelist = ['http://localhost:3000', 'https://api-lnpy.herokuapp.com'];
 const corsOptions: CorsOptions = {
     credentials: true,
     methods: ['GET', 'DELETE', 'OPTIONS', 'POST', 'PUT'],

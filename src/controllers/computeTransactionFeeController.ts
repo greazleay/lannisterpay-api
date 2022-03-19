@@ -72,16 +72,15 @@ export const post_compute_transaction_fee = [
                     return wildCardValues.length;
                 };
 
-                const wildCardValuesArray: { i: number, value: number }[] = [];
-                applicableFeeConfigSpecs.forEach((fcs, i) => {
-                    wildCardValuesArray.push({ i, value: getWildCardValues(Object.values(fcs.generateFeeConfigSpec())) });
+                const wildCardValuesCount: { index: number, count: number }[] = applicableFeeConfigSpecs.map((fcs, index) => {
+                    return { index, count: getWildCardValues(Object.values(fcs.generateFeeConfigSpec())) }
                 });
 
-                const min: { i: number, value: number } = wildCardValuesArray.reduce((prev, curr) => prev.value < curr.value ? prev : curr);
-                const computedFee = applicableFeeConfigSpecs[min.i].computeAppliedFee(Amount);
+                const min: { index: number, count: number } = wildCardValuesCount.reduce((prev, curr) => prev.count < curr.count ? prev : curr);
+                const computedFee = applicableFeeConfigSpecs[min.index].computeAppliedFee(Amount);
 
                 return res.status(200).json({
-                    AppliedFeeID: applicableFeeConfigSpecs[min.i].FEE_ID,
+                    AppliedFeeID: applicableFeeConfigSpecs[min.index].FEE_ID,
                     AppliedFeeValue: Math.round(computedFee),
                     ChargeAmount: Customer.BearsFee ? Amount + computedFee : Amount,
                     SettlementAmount: Customer.BearsFee ? Amount : Amount - computedFee,
