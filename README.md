@@ -6,8 +6,6 @@
 
 ## About
 
-FlutterWave Technical Assessment Project.
-
 Lannister Pay is a transaction fee processing service meant to calculate the fee applicable to a transaction based on specific fee configuration.
 
 ## Stack
